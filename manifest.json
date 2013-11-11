@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+
+  "name": "Console To CSS",
+  "description": "This extension detects dom css attribute changes and appends them to a file",
+  "version": "1.0", 
+  "permissions": [
+    "tabs", "http://*/", "https://*/", "alarms"
+  ],
+  "browser_action": {
+    "default_icon": "icon.png"
+  },
+  "background": {
+    "scripts": ["popup.js"],
+    "persistent": true
+    }
+}
