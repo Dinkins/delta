@@ -11,7 +11,6 @@ Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {
     myObserver.observe(target, obsConfig);
 });
 
-
 function mutationHandler (mutationRecords) 
 {
   mutationRecords.forEach(function (mutation) 
@@ -26,9 +25,7 @@ function mutationHandler (mutationRecords)
         var path = "body," + createNodePath(target, "");
         console.log(path);
         change_map.put(path, target.getAttribute("style"));
-
       }
-      console.log(change_map);
   });
 }
 
@@ -44,13 +41,11 @@ function createNodePath(node, constructed_path)
       }
       else if (loop_node.getAttribute("class"))
       {
-        var classes = loop_node.getAttribute("class");
-        constructed_path = assemblePathString(styleClassNames(classes), constructed_path); 
+        constructed_path = assemblePathString(styleClassNames(loop_node.getAttribute("class")), constructed_path); 
       }
       else
       {
-        var vague_path = loop_node.localName + " [" + findElementIndex(loop_node) + "]"; 
-        constructed_path = assemblePathString(vague_path, constructed_path);
+        constructed_path = assemblePathString(loop_node.localName + " [" + findElementIndex(loop_node) + "]", constructed_path);
       }
       iterated = true; 
       loop_node = loop_node.parentNode; 
@@ -61,19 +56,20 @@ function createNodePath(node, constructed_path)
 //createNodePath helper methods
 function styleClassNames(class_string)
 {
-  console.log('wrong');
   var strings, modified_class_string; 
-  if(class_string.contains(" "))
+  console.log(typeof(class_string));
+  if(class_string.indexOf(" ") !== -1)
   {
     var skrangs = class_string.split(" ");
     for (var i = 0; i < skrangs.length; i++)
     {
       modified_class_string.concat("." + skrangs[i]);
     }
+    return modified_class_string; 
   }
   else
   {
-    return "."+class_string;
+     return "."+class_string;
   }
 }
 
@@ -92,15 +88,22 @@ function assemblePathString(to_concat, path)
 function findElementIndex(node)
 {
    var i=1;
-    while(node.previousSibling)
+   while(node.previousSibling)
     {
         node = node.previousSibling;
         if(node.nodeType === 1){
             i++;
         }
     }
-    return i;   
+   return i;   
 }
+
+//chrome message listener
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+   console.log(request.greeting);
+  });
 
 //Javascript Hashmap Implementation borrowed from this stackexchange post: http://stackoverflow.com/questions/368280/javascript-hashmap-equivalent
 function Map(linkItems) {

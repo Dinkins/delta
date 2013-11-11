@@ -1,35 +1,21 @@
-// $(function()
-// {	
-
-// 	$('.onoffswitch-checkbox').on('click', function()
-// 	{
-// 		if($(this).is(':checked'))
-// 		{
-// 			console.log('switch on');
-// 		}
-	
-// 		chrome.tabs.executeScript(null, {file: "jquery.js"}, function(){
-// 		   	chrome.tabs.executeScript(null, {file: "track.js"});
-// 		});
-
-//     	console.log('executed script');
-// 	});
-// });
-
-var record = false; 
+var record = true; 
 
 chrome.browserAction.onClicked.addListener(function(tab) {
 	if(record)
 	{
-		//stop recording mutation events
+		chrome.tabs.executeScript(null, {file: "track.js"});
+		record = false; 
 	}
 	else
 	{
-		//start recording mutation events
-		// chrome.tabs.executeScript(null, {file: "jquery.js"}, function(){
-		//    	chrome.tabs.executeScript(null, {file: "track.js"});
-		// });
-		chrome.tabs.executeScript(null, {file: "track.js"});
+		chrome.runtime.sendMessage({greeting: "STOP"}, function(response) {
+		});
+		record = true; 
 	}
 });
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    //message listener
+  });
 
