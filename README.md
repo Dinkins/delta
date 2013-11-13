@@ -1,4 +1,3 @@
-delta
+delta Δ 
 =====
 
-Changes.
