@@ -6,10 +6,25 @@ var att_filter = new Array ('style'); //need to filter style changes only
 var obsConfig  = {childList: false, characterData: false, attributes: true, subtree: false, attributeFilter: att_filter};
 var page_target = document.querySelectorAll('body *');
 
-//attach observers to all page objects
-Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {
-    myObserver.observe(target, obsConfig);
-});
+
+//listen for start/stop tracking message from the extension
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) 
+  {
+    if(request.greeting === "STOP")
+    {
+      Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {
+        myObserver.disconnect();
+      });
+    }
+    else if(request.greeting === "START")
+    {
+      Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {
+        myObserver.observe(target, obsConfig);
+      });
+    }
+  }
+);
 
 function mutationHandler (mutationRecords) 
 {
@@ -23,8 +38,8 @@ function mutationHandler (mutationRecords)
       else
       {
         var path = "body," + createNodePath(target, "");
-        console.log(path);
-        change_map.put(path, target.getAttribute("style"));
+        change_map.put(killTrailingComma(path), target.getAttribute("style"));
+        console.log(change_map);
       }
   });
 }
@@ -56,14 +71,13 @@ function createNodePath(node, constructed_path)
 //createNodePath helper methods
 function styleClassNames(class_string)
 {
-  var strings, modified_class_string; 
-  console.log(typeof(class_string));
+  var modified_class_string = "";
   if(class_string.indexOf(" ") !== -1)
   {
     var skrangs = class_string.split(" ");
     for (var i = 0; i < skrangs.length; i++)
     {
-      modified_class_string.concat("." + skrangs[i]);
+      modified_class_string = modified_class_string.concat("." + skrangs[i]);
     }
     return modified_class_string; 
   }
@@ -98,12 +112,19 @@ function findElementIndex(node)
    return i;   
 }
 
-//chrome message listener
+function killTrailingComma(path)
+{
+  if(path.charAt(path.length -1) === ",")
+  {
+    return path.substring(0, path.length-1); 
+  }
+  else
+  {
+    return path; 
+  }
+}
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-   console.log(request.greeting);
-  });
+
 
 //Javascript Hashmap Implementation borrowed from this stackexchange post: http://stackoverflow.com/questions/368280/javascript-hashmap-equivalent
 function Map(linkItems) {

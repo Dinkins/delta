@@ -1,21 +1,23 @@
 var record = true; 
-
 chrome.browserAction.onClicked.addListener(function(tab) {
 	if(record)
 	{
 		chrome.tabs.executeScript(null, {file: "track.js"});
+		toggleNodeMonitoring("START");
 		record = false; 
 	}
 	else
 	{
-		chrome.runtime.sendMessage({greeting: "STOP"}, function(response) {
-		});
+		toggleNodeMonitoring("STOP");
 		record = true; 
+	
 	}
 });
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    //message listener
-  });
-
+//helper methods
+function toggleNodeMonitoring(message)
+{
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+			chrome.tabs.sendMessage(tabs[0].id, {greeting: message});
+		});
+}
