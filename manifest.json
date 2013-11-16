@@ -5,7 +5,7 @@
   "description": "This extension detects dom css attribute changes and appends them to a file",
   "version": "1.0", 
   "permissions": [
-    "tabs", "http://*/", "https://*/", "alarms"
+    "tabs", "http://*/", "https://*/", "alarms","contextMenus"
   ],
   "browser_action": {
     "default_icon": "icon.png"

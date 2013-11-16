@@ -1,4 +1,6 @@
 var record = true; 
+console.log(parent);
+
 chrome.browserAction.onClicked.addListener(function(tab) {
 	if(record)
 	{
