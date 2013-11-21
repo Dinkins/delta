@@ -6,11 +6,14 @@ var att_filter = new Array ('style'); //need to filter style changes only
 var obsConfig  = {childList: false, characterData: false, attributes: true, subtree: false, attributeFilter: att_filter};
 var page_target = document.querySelectorAll('body *');
 
+console.log('injected');
+alert('injected');
 
 //listen for start/stop tracking message from the extension
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) 
   {
+    console.log('received a message');
     if(request.greeting === "STOP")
     {
       Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {
@@ -22,9 +25,16 @@ chrome.runtime.onMessage.addListener(
       Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {
         myObserver.observe(target, obsConfig);
       });
+      console.log("started");
+    }
+    else if(request.greeting === "WRITE")
+    {
+      createStringFromHashMap();
     }
   }
 );
+
+
 
 function mutationHandler (mutationRecords) 
 {
@@ -39,8 +49,9 @@ function mutationHandler (mutationRecords)
       {
         var path = "body," + createNodePath(target, "");
         change_map.put(killTrailingComma(path), target.getAttribute("style"));
-        console.log(change_map);
+        
       }
+      console.log(change_map);
   });
 }
 
@@ -125,6 +136,38 @@ function killTrailingComma(path)
 }
 
 
+function createStringFromHashMap()
+{
+  var css_string;
+  var first_bracket = "\n{";
+  var last_bracket = "}";
+
+  if (change_map.size === 0)
+  {
+    return null; 
+  }
+
+  for(var i = 0; i++ < change_map.size; change_map.next())
+  {
+    css_string.concat(change_map.key() + first_bracket + breakStyleChangesAndFormat(change_map.hash(change_map.key())) + last_bracket);
+
+  }
+
+  return css_string; 
+}
+
+function breakStyleChangesAndFormat(style_string)
+{
+  var style_array = style_string.split(';');
+  var semicolon = ";";
+  var formatted_string_with_style = new String(); 
+  for (var i = 0; i< style_array.length i++)
+  {
+    formatted_string_with_style.concat(style_array[i], semicolon, "\n");
+  }
+  console.log(formatted_string_with_style);
+  return formatted_string_with_style; 
+}
 
 //Javascript Hashmap Implementation borrowed from this stackexchange post: http://stackoverflow.com/questions/368280/javascript-hashmap-equivalent
 function Map(linkItems) {
