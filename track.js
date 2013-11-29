@@ -32,7 +32,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
       }
       if(request.greeting === "GET CHANGES")
       {
-        console.log(createStringFromHashMap());
         sendResponse({farewell: createStringFromHashMap()});
       }
 });
@@ -137,37 +136,38 @@ function killTrailingComma(path)
 }
 
 
-// function createStringFromHashMap()
-// {
-//   var css_string = " ";
-//   var first_bracket = "\n{";
-//   var last_bracket = "}";
+function createStringFromHashMap()
+{
+  var css_string = new String();
+  var first_bracket = "\n{\n";
+  var last_bracket = "\n}\n";
 
-//   if (change_map.size === 0)
-//   {
-//     return null; 
-//   }
+  if (change_map.size === 0)
+  {
+    return null; 
+  }
 
-//   for(var i = 0; i++ < change_map.size; change_map.next())
-//   {
-//     css_string.concat(change_map.key() + first_bracket + breakStyleChangesAndFormat(change_map.hash(change_map.key())) + last_bracket);
-//     console.log(css_string);
-//   }
+  for(key in change_map)
+  {
+    if(change_map.hasOwnProperty(key))
+    {
+      css_string = css_string + key + first_bracket + breakStyleChangesAndFormat(change_map[key]) + last_bracket;
+    }    
+  }
+  console.log(css_string);
+  return css_string; 
+}
 
-//   return css_string; 
-// }
-
-// function breakStyleChangesAndFormat(style_string)
-// {
-//   var style_array = style_string.split(';');
-//   var semicolon = ";";
-//   var formatted_string_with_style= "";
-//   for (var i = 0; i< style_array.length; i++)
-//   {
-//     formatted_string_with_style.concat(style_array[i], semicolon, "\n");
-//   }
-//   console.log(formatted_string_with_style);
-//   return formatted_string_with_style; 
-// }
+function breakStyleChangesAndFormat(style_string)
+{
+  var stripped_string = style_string.replace(/^[\r\n]+|\.|[\r\n]+$/g, "");
+  var style_array = stripped_string.split(';');
+  var formatted_string_with_style= "";
+  for (var i = 0; i< style_array.length; i++)
+  {
+     if(style_array[i] != "")formatted_string_with_style = formatted_string_with_style + style_array[i] + ";"; 
+  }
+  return formatted_string_with_style; 
+}
 
 
