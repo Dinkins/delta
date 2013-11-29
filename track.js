@@ -34,6 +34,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
       {
         sendResponse({farewell: createStringFromHashMap()});
       }
+      if(request.greeting ==="WRITE CHANGES")
+      {
+          writeFileAndForceDownload(createStringFromHashMap());
+      }
 });
 
 
@@ -160,8 +164,8 @@ function createStringFromHashMap()
 
 function breakStyleChangesAndFormat(style_string)
 {
-  var stripped_string = style_string.replace(/^[\r\n]+|\.|[\r\n]+$/g, "");
-  var style_array = stripped_string.split(';');
+ 
+  var style_array = style_string.replace(/^[\r\n]+|\.|[\r\n]+$/g, "").split(';');
   var formatted_string_with_style= "";
   for (var i = 0; i< style_array.length; i++)
   {
@@ -170,4 +174,30 @@ function breakStyleChangesAndFormat(style_string)
   return formatted_string_with_style; 
 }
 
-
+//write css to file and download
+function writeFileAndForceDownload(css_styles)
+{
+  console.log(css_styles);
+  var formatted_title = document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() + "-deltastyles.css";
+      window.webkitRequestFileSystem(window.TEMPORARY, 1024*1024, function(fs) {
+        fs.root.getFile(formatted_title, {create: true}, function(fileEntry) {
+            fileEntry.createWriter(function(fileWriter) {
+               fileWriter.onerror = function(e) {
+                    console.log('Write failed: ' + e.toString());
+                };
+                var blob = new Blob([css_styles], {type : "text/plain;charset=UTF-8"});
+                var a = document.createElement('a');
+                fileWriter.addEventListener("writeend", function() {
+                        a.href = window.URL.createObjectURL(blob);
+                        a.download = formatted_title;
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        a.click(); //this is probably the key - simulating a click on a download link
+                        delete a;
+                }, false);
+    
+                fileWriter.write(blob);
+            }, function() {});
+        }, function() {});
+    }, function() {});
+}

@@ -1,5 +1,5 @@
-chrome.contextMenus.create({"id": String(Date.now()), "title": "Write CSS Changes To File"});
-
+chrome.contextMenus.create({"id": "write", "title": "Write CSS Changes To File", onclick: writeChangesToFile});
+//chrome.contextMenus.create({"id": "copy", "title": "Copy CSS Changes To Clipboard", onclick: copyChangesToClipboard});
 
 chrome.browserAction.onClicked.addListener(function(tab) {
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -7,25 +7,24 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 });});
 
 
-
-// listen for notifiication to write out file
-chrome.contextMenus.onClicked.addListener(function ()
-{
-  		toggleNodeMonitoring("GET CHANGES");
-});
-
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-  	console.log(request);
-  });
-
 //helper methods
 function toggleNodeMonitoring(message)
 { 
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs)
 	{
 		 chrome.tabs.sendMessage(tabs[0].id, {greeting: message}, function(response) {
-		 	//console.log(response);
+		 	if(response) return response.farewell; 
 		 });
 	});	
 }
+
+function writeChangesToFile()
+{
+	toggleNodeMonitoring("WRITE CHANGES");
+}
+
+// function copyChangesToClipboard()
+// {
+// 	var styles = toggleNodeMonitoring("GET CHANGES");
+// 	//create popup to go here
+// } holding off on implementing this until I write popup html

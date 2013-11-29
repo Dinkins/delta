@@ -5,7 +5,7 @@
   "description": "Store, save, and print your on the fly CSS changes.",
   "version": "1.0", 
   "permissions": [
-    "tabs", "http://*/*", "https://*/*", "alarms","contextMenus"
+    "tabs", "http://*/*", "https://*/*", "alarms","contextMenus", "clipboardWrite"
   ],
   "browser_action": {
     "default_icon": "icon.png"
