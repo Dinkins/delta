@@ -1,14 +1,14 @@
 {
   "manifest_version": 2,
 
-  "name": "Console To CSS",
-  "description": "Store, save, and print your on the fly CSS changes.",
+  "name": "Delta",
+  "description": "Making on the fly CSS changes easy.",
   "version": "1.0", 
   "permissions": [
     "tabs", "http://*/*", "https://*/*", "alarms","contextMenus", "clipboardWrite"
   ],
   "browser_action": {
-    "default_icon": "icon.png"
+    "default_icon": "images/delta16.png"
   },
   "background": {
     "scripts": ["popup.js"],
@@ -21,5 +21,8 @@
         "matches": ["http://*/*", "https://*/*"],
         "js": ["track.js"]
       }
-    ]
+    ],
+    "icons": { "16": "images/delta16.png",
+           "48": "images/delta48.png",
+          "128": "images/delta128.png" }
 }

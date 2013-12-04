@@ -29,14 +29,19 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
            });
           record = true; 
         }
+        sendResponse({active_flag: record, count: Object.keys(change_map).length});
       }
       if(request.greeting === "GET CHANGES")
       {
-        sendResponse({farewell: createStringFromHashMap()});
+        sendResponse({css: createStringFromHashMap()});
       }
-      if(request.greeting ==="WRITE CHANGES")
+      if(request.greeting === "WRITE CHANGES")
       {
-          writeFileAndForceDownload(createStringFromHashMap());
+        writeFileAndForceDownload(createStringFromHashMap());
+      }
+      if(request.greeting === "COUNT AND ACTIVE")
+      {
+         sendResponse({active_flag: record, count: Object.keys(change_map).length});
       }
 });
 
@@ -55,8 +60,15 @@ function mutationHandler (mutationRecords)
         var path = killTrailingComma("body," + createNodePath(target, ""));
         change_map[path] = target.getAttribute("style");
       }
-      console.log(change_map);
+      sendBadgeCount(); //god I hate the way this iterates...maight look into underscores if I add any additional functionality
+
   });
+}
+
+function sendBadgeCount()
+{
+  chrome.runtime.sendMessage({count: Object.keys(change_map).length, active_flag: record}, function(response) {
+});
 }
 
 function createNodePath(node, constructed_path)
@@ -169,7 +181,7 @@ function breakStyleChangesAndFormat(style_string)
   var formatted_string_with_style= "";
   for (var i = 0; i< style_array.length; i++)
   {
-     if(style_array[i] != "")formatted_string_with_style = formatted_string_with_style + style_array[i] + ";"; 
+     if(style_array[i] != "")formatted_string_with_style = formatted_string_with_style + style_array[i] + ";\n"; 
   }
   return formatted_string_with_style; 
 }
@@ -183,7 +195,7 @@ function writeFileAndForceDownload(css_styles)
         fs.root.getFile(formatted_title, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
                fileWriter.onerror = function(e) {
-                    console.log('Write failed: ' + e.toString());
+                    //need to figure out a way to error gracefully
                 };
                 var blob = new Blob([css_styles], {type : "text/plain;charset=UTF-8"});
                 var a = document.createElement('a');
@@ -195,7 +207,6 @@ function writeFileAndForceDownload(css_styles)
                         a.click(); //this is probably the key - simulating a click on a download link
                         delete a;
                 }, false);
-    
                 fileWriter.write(blob);
             }, function() {});
         }, function() {});
