@@ -2,13 +2,12 @@ var iterated = false;
 var change_map = {};
 var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 var myObserver = new MutationObserver (mutationHandler);
-var att_filter = new Array ('style'); //need to filter style changes only
+var att_filter = new Array ('style');
 var obsConfig  = {childList: false, characterData: false, attributes: true, subtree: false, attributeFilter: att_filter};
-var page_target = document.querySelectorAll('body *');
+var page_target = document.querySelectorAll('*'); //FIXME: Obvs this is fine with chromes V8, but for other ports we need to evaluate performance.
 var record = true; 
 
-//listen for start/stop tracking message from the extension
-
+//context script message handler
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 {
       if(request.greeting === "TRIGGER OBSERVER")
@@ -16,20 +15,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
         if (record)
         {
           //start monitoring
-          Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {
-          myObserver.observe(target, obsConfig);
-          });
+          Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {myObserver.observe(target, obsConfig);});
           record = false; 
         }
         else
         {
           //stop just fucking stop
-          Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {
-          myObserver.disconnect();
-           });
+          Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {myObserver.disconnect();});
           record = true; 
         }
-        console.log(record);
         sendResponse({active_flag: record, count: Object.keys(change_map).length});
       }
       if(request.greeting === "GET CHANGES")
@@ -46,7 +40,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
       }
 });
 
-
+//mutation handler for changes to dom elements
 function mutationHandler (mutationRecords) 
 {
   mutationRecords.forEach(function (mutation) 
@@ -58,11 +52,10 @@ function mutationHandler (mutationRecords)
       }
       else
       {
-        var path = killTrailingComma("body," + createNodePath(target, ""));
+        var path = killTrailingComma(createNodePath(target, ""));
         change_map[path] = target.getAttribute("style");
       }
-      sendBadgeCount(); //god I hate the way this iterates...maight look into underscores if I add any additional functionality
-
+      sendBadgeCount();
   });
 }
 
@@ -76,9 +69,13 @@ function createNodePath(node, constructed_path)
 {
   var loop_node = node; 
   var constructed_path = ""; 
-  while (loop_node.nodeName != "BODY")
+  while (loop_node.nodeName !== "#document")
   {
-      if(loop_node.id)
+      if(loop_node.nodeName === "BODY" || loop_node.nodeName === "HTML")
+      {
+        constructed_path = assemblePathString(loop_node.localName, constructed_path);
+      }
+      else if(loop_node.id)
       {
         constructed_path = assemblePathString("#"+ loop_node.id, constructed_path);
       }
@@ -123,7 +120,7 @@ function assemblePathString(to_concat, path)
   }
   else
   {
-    return to_concat.concat(",", path);
+    return to_concat.concat(" ", path);
   }
 }
 

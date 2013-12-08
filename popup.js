@@ -4,16 +4,13 @@ chrome.contextMenus.create({"id": "copy", "title": "Copy CSS Changes To Clipboar
 
 //chrome event handlers
 chrome.browserAction.onClicked.addListener(function(tab) {
-	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-	toggleNodeMonitoring("TRIGGER OBSERVER"); //TODO: Remove double tag query here since we're calling it in toggleNodeMonitoring
-});});
+	toggleNodeMonitoring("TRIGGER OBSERVER");
+});
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
  	if(request.hasOwnProperty('active_flag')) changeIconAndSetBadge(sender.tab.id, request.count, request.active_flag);
   });
-
-
 
 //main toggle methods
 function toggleNodeMonitoring(message)
@@ -70,7 +67,3 @@ function setIcon(active_flag, id)
 	}
 }
 
-//TODO:
-//create keybindings to start and stop monitoring
-//add reload event handler to deal with removing icon at page load
-//add event to deal with tab changes
