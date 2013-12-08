@@ -8,15 +8,12 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 	toggleNodeMonitoring("TRIGGER OBSERVER"); //TODO: Remove double tag query here since we're calling it in toggleNodeMonitoring
 });});
 
-chrome.tabs.onActivated.addListener(function(activeInfo)
-{
-	toggleNodeMonitoring("COUNT AND ACTIVE");
-});
-
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
  	if(request.hasOwnProperty('active_flag')) changeIconAndSetBadge(sender.tab.id, request.count, request.active_flag);
   });
+
+
 
 //main toggle methods
 function toggleNodeMonitoring(message)
@@ -58,20 +55,22 @@ function setClipboardText(css)
 function changeIconAndSetBadge(tabid, number_changes, active_flag)
 {
 	if (number_changes > 0) chrome.browserAction.setBadgeText({text: number_changes.toString(), tabId: tabid});
-	setIcon(active_flag);
+	setIcon(active_flag, tabid);
 }
 
-function setIcon(active_flag)
+function setIcon(active_flag, id)
 {
-	if(!active_flag) //backwards because flag is changed after observer start/stop
+	if(active_flag === false) //backwards because flag is changed after observer start/stop
 	{
-		chrome.browserAction.setIcon({path: "images/delta48_active.png"});
+		chrome.browserAction.setIcon({path: "images/delta48_active.png", tabId: id});
 	}
 	else
 	{
-		chrome.browserAction.setIcon({path: "images/delta48.png"});
+		chrome.browserAction.setIcon({path: "images/delta48.png", tabId: id}); 
 	}
 }
 
 //TODO:
 //create keybindings to start and stop monitoring
+//add reload event handler to deal with removing icon at page load
+//add event to deal with tab changes

@@ -29,6 +29,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
            });
           record = true; 
         }
+        console.log(record);
         sendResponse({active_flag: record, count: Object.keys(change_map).length});
       }
       if(request.greeting === "GET CHANGES")
