@@ -27,16 +27,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
         sendResponse({active_flag: record, count: Object.keys(change_map).length});
       }
       if(request.greeting === "GET CHANGES")
-      {
+      { if(Object.keys(change_map).length === 0){alert('Delta has not observed any changes on this page.'); return} 
         sendResponse({css: createStringFromHashMap()});
       }
       if(request.greeting === "WRITE CHANGES")
       {
+        if(Object.keys(change_map).length === 0){alert('Delta has not observed any changes on this page.'); return} 
         writeFileAndForceDownload(createStringFromHashMap());
       }
       if(request.greeting === "COUNT AND ACTIVE")
       {
-         sendResponse({active_flag: record, count: Object.keys(change_map).length});
+        sendResponse({active_flag: record, count: Object.keys(change_map).length});
       }
 });
 
@@ -168,7 +169,6 @@ function createStringFromHashMap()
       css_string = css_string + key + first_bracket + breakStyleChangesAndFormat(change_map[key]) + last_bracket;
     }    
   }
-  console.log(css_string);
   return css_string; 
 }
 

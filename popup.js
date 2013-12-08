@@ -1,6 +1,6 @@
 //extension setup
-chrome.contextMenus.create({"id": "write", "title": "Write CSS Changes To File", onclick: writeChangesToFile});
-chrome.contextMenus.create({"id": "copy", "title": "Copy CSS Changes To Clipboard", onclick: copyChangesToClipboard});
+chrome.contextMenus.create({"id": "write", "title": "Write css changes to file", onclick: writeChangesToFile});
+chrome.contextMenus.create({"id": "copy", "title": "Copy css changes to clipboard", onclick: copyChangesToClipboard});
 
 //chrome event handlers
 chrome.browserAction.onClicked.addListener(function(tab) {
@@ -20,8 +20,15 @@ function toggleNodeMonitoring(message)
 		 chrome.tabs.sendMessage(tabs[0].id, {greeting: message}, function(response) {
 		 	if(response !== undefined)
 		 	{
-		 		if (response.hasOwnProperty('css')) setClipboardText(response.css);
-		 		if (response.hasOwnProperty('active_flag') !== undefined) changeIconAndSetBadge(tabs[0].id, response.count, response.active_flag);
+		 		if (response.hasOwnProperty('css')) 
+		 			{
+		 				setClipboardText(response.css);
+		 				return;
+		 			}
+		 		else if (response.hasOwnProperty('active_flag') !== undefined) 
+		 			{
+		 				changeIconAndSetBadge(tabs[0].id, response.count, response.active_flag);
+		 			}
 		 	}
 		 });
 	});	 
@@ -40,6 +47,7 @@ function copyChangesToClipboard()
 //helper methods
 function setClipboardText(css)
 {
+
 	var text_vessle = document.createElement("textarea");
     text_vessle.textContent = css;
     var body = document.getElementsByTagName('body')[0];
