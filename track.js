@@ -1,11 +1,11 @@
-var iterated = false; 
-var change_map = {};
-var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-var myObserver = new MutationObserver (mutationHandler);
-var att_filter = new Array ('style');
-var obsConfig  = {childList: false, characterData: false, attributes: true, subtree: false, attributeFilter: att_filter};
-var page_target = document.querySelectorAll('*'); //FIXME: Obvs this is fine with chromes V8, but for other ports we need to evaluate performance.
-var record = true; 
+var iterated = false,
+  change_map = {},
+  MutationObserver = window.MutationObserver || window.WebKitMutationObserver,
+  myObserver = new MutationObserver (mutationHandler),
+  att_filter = new Array ('style'),
+  obsConfig  = {childList: false, characterData: false, attributes: true, subtree: false, attributeFilter: att_filter},
+  page_target = document.querySelectorAll('*'),
+  record = true; 
 
 //context script message handler
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
@@ -15,26 +15,43 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
         if (record)
         {
           //start monitoring
-          Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {myObserver.observe(target, obsConfig);});
+          Array.prototype.slice.call(page_target).forEach(
+            function(target, index, arr) {
+              myObserver.observe(target, obsConfig);
+            });
           record = false; 
         }
         else
         {
-          //stop just fucking stop
-          Array.prototype.slice.call(page_target).forEach(function(target, index, arr) {myObserver.disconnect();});
+          Array.prototype.slice.call(page_target).forEach(
+              function(target, index, arr) {
+                myObserver.disconnect();
+              });
           record = true; 
         }
         sendResponse({active_flag: record, count: Object.keys(change_map).length});
       }
+
       if(request.greeting === "GET CHANGES")
-      { if(Object.keys(change_map).length === 0){alert('Delta has not observed any changes on this page.'); return} 
+      { 
+        if(Object.keys(change_map).length === 0)
+        {
+          alert('Delta has not observed any changes on this page.'); 
+          return
+        } 
         sendResponse({css: createStringFromHashMap()});
       }
+
       if(request.greeting === "WRITE CHANGES")
       {
-        if(Object.keys(change_map).length === 0){alert('Delta has not observed any changes on this page.'); return} 
+        if(Object.keys(change_map).length === 0)
+        {
+          alert('Delta has not observed any changes on this page.'); 
+          return
+        } 
         writeFileAndForceDownload(createStringFromHashMap());
       }
+      
       if(request.greeting === "COUNT AND ACTIVE")
       {
         sendResponse({active_flag: record, count: Object.keys(change_map).length});
@@ -53,7 +70,7 @@ function mutationHandler (mutationRecords)
       }
       else
       {
-        var path = killTrailingComma(createNodePath(target, ""));
+        var path = createNodePath(target, "");
         change_map[path] = target.getAttribute("style");
       }
       sendBadgeCount();
@@ -93,6 +110,8 @@ function createNodePath(node, constructed_path)
   }  
   return constructed_path;    
 }
+
+
 
 //createNodePath helper methods
 function styleClassNames(class_string)
@@ -138,19 +157,6 @@ function findElementIndex(node)
    return i;   
 }
 
-function killTrailingComma(path)
-{
-  if(path.charAt(path.length -1) === ",")
-  {
-    return path.substring(0, path.length-1); 
-  }
-  else
-  {
-    return path; 
-  }
-}
-
-
 function createStringFromHashMap()
 {
   var css_string = new String();
@@ -179,7 +185,10 @@ function breakStyleChangesAndFormat(style_string)
   var formatted_string_with_style= "";
   for (var i = 0; i< style_array.length; i++)
   {
-     if(style_array[i] != "")formatted_string_with_style = formatted_string_with_style + style_array[i] + ";\n"; 
+     if(style_array[i] != "")
+      {
+        formatted_string_with_style = formatted_string_with_style + style_array[i] + ";\n"; 
+      }
   }
   return formatted_string_with_style; 
 }
@@ -193,7 +202,8 @@ function writeFileAndForceDownload(css_styles)
         fs.root.getFile(formatted_title, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
                fileWriter.onerror = function(e) {
-                    //need to figure out a way to error gracefully
+                    alert("An error occured while writing this file.");
+                    return; 
                 };
                 var blob = new Blob([css_styles], {type : "text/plain;charset=UTF-8"});
                 var a = document.createElement('a');
@@ -202,7 +212,7 @@ function writeFileAndForceDownload(css_styles)
                         a.download = formatted_title;
                         a.style.display = 'none';
                         document.body.appendChild(a);
-                        a.click(); //this is probably the key - simulating a click on a download link
+                        a.click(); 
                         delete a;
                 }, false);
                 fileWriter.write(blob);
