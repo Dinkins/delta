@@ -37,7 +37,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
         if(Object.keys(change_map).length === 0)
         {
           alert('Delta has not observed any changes on this page.'); 
-          return
+          return;
         } 
         sendResponse({css: createStringFromHashMap()});
       }
@@ -47,7 +47,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
         if(Object.keys(change_map).length === 0)
         {
           alert('Delta has not observed any changes on this page.'); 
-          return
+          return;
         } 
         writeFileAndForceDownload(createStringFromHashMap());
       }
@@ -196,7 +196,6 @@ function breakStyleChangesAndFormat(style_string)
 //write css to file and download
 function writeFileAndForceDownload(css_styles)
 {
-  console.log(css_styles);
   var formatted_title = document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() + "-deltastyles.css";
       window.webkitRequestFileSystem(window.TEMPORARY, 1024*1024, function(fs) {
         fs.root.getFile(formatted_title, {create: true}, function(fileEntry) {

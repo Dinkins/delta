@@ -23,5 +23,15 @@
     ],
     "icons": { "16": "images/delta16.png",
            "48": "images/delta48.png",
-          "128": "images/delta128.png" }
+          "128": "images/delta128.png" },
+    "commands": {"deltatoggle" :
+    {
+      "suggested_key": {
+        "windows": "Ctrl+D",
+        "mac" : "MacCtrl+D"
+      },
+      "description": "Toggles delta on and off"
+    }
+
+    }
 }
