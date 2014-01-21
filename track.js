@@ -71,6 +71,11 @@ function mutationHandler (mutationRecords)
       else
       {
         var path = createNodePath(target, "");
+        if (path.charAt(path.length-1) === " ") 
+        {
+          //strip last character
+          path = path.substring(0, path.length-1);
+        }
         change_map[path] = target.getAttribute("style");
       }
       sendBadgeCount();
